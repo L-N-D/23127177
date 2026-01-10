@@ -29,15 +29,18 @@ pipeline {
     }
 
     stage('DAST - OWASP ZAP') {
-      steps {
-        sh '''
-          docker run --rm --network host \
-            zaproxy/zap-stable zap-baseline.py \
-            -t http://localhost:8081 \
-            -r zap-report.html
-        '''
-      }
+        steps {
+            sh '''
+            docker run --rm --network host \
+                -v "$PWD:/zap/wrk" \
+                zaproxy/zap-stable zap-baseline.py \
+                -t http://localhost:8081 \
+                -r zap-report.html \
+                -I
+            '''
+        }
     }
+
   }
 
   post {
