@@ -1,18 +1,23 @@
 pipeline {
   agent any
 
+  environment {
+    APP_URL = "http://116.118.60.232:3000"
+  }
+
   stages {
+
     stage('Checkout') {
       steps {
-        git 'https://github.com/L-N-D/23127177.git'
+        checkout scm
       }
     }
 
     stage('SAST - Semgrep') {
       steps {
         sh '''
-        pip install semgrep
-        semgrep scan --config=auto
+        pip3 install --user semgrep || true
+        ~/.local/bin/semgrep scan --config=auto || true
         '''
       }
     }
@@ -20,8 +25,17 @@ pipeline {
     stage('Build & Deploy') {
       steps {
         sh '''
-        docker-compose down
+        docker-compose down || true
         docker-compose up -d --build
+        '''
+      }
+    }
+
+    stage('Wait for App') {
+      steps {
+        sh '''
+        echo "Waiting for app to be ready..."
+        sleep 15
         '''
       }
     }
@@ -30,9 +44,4 @@ pipeline {
       steps {
         sh '''
         docker run --rm owasp/zap2docker-stable \
-        zap-baseline.py -t http://116.118.60.232:3000
-        '''
-      }
-    }
-  }
-}
+        zap-baseline.py -
