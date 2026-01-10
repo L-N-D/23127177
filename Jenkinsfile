@@ -4,10 +4,12 @@ pipeline {
   stages {
 
     stage('Checkout') {
-      steps {
-        git 'https://github.com/L-N-D/23127177.git'
-      }
+        steps {
+            git branch: 'main',
+            url: 'https://github.com/L-N-D/23127177.git'
+        }
     }
+
 
     stage('SAST - Semgrep') {
       steps {
