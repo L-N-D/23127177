@@ -20,13 +20,15 @@ pipeline {
     }
 
     stage('Build & Deploy HTML') {
-      steps {
-        sh '''
-          docker-compose down
-          docker-compose up -d --build
-        '''
-      }
+        steps {
+            sh '''
+            docker-compose down --remove-orphans
+            docker rm -f web_html || true
+            docker-compose up -d --build
+            '''
+        }
     }
+
 
     stage('DAST - OWASP ZAP') {
         steps {

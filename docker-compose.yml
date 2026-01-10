@@ -1,12 +1,11 @@
-version: "3.8"
-
 services:
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
     image: 23127177_web:latest
-    container_name: web_html
+    build: .
     ports:
       - "8081:80"
-    restart: unless-stopped
+
+    security_opt:
+      - no-new-privileges:true
+
+    read_only: true
