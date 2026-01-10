@@ -1,5 +1,6 @@
 services:
   web:
+    container_name: web_html
     image: 23127177_web:latest
     build: .
     ports:

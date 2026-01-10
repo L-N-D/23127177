@@ -14,37 +14,35 @@ pipeline {
       steps {
         sh '''
           docker run --rm -v "$PWD:/src" semgrep/semgrep \
-            semgrep scan --config=auto
+            semgrep scan --config=auto \
+            --exclude zap-report.html
         '''
       }
     }
 
     stage('Build & Deploy HTML') {
-        steps {
-            sh '''
-            docker-compose down --remove-orphans
-            docker rm -f web_html || true
-            docker-compose up -d --build
-            '''
-        }
+      steps {
+        sh '''
+          docker ps -q --filter "publish=8081" | xargs -r docker rm -f
+          docker-compose down --remove-orphans
+          docker-compose up -d --build
+        '''
+      }
     }
-
 
     stage('DAST - OWASP ZAP') {
-        steps {
-            sh '''
-            docker run --rm --network host \
-                --user root \
-                -v "$PWD:/zap/wrk" \
-                zaproxy/zap-stable zap-baseline.py \
-                -t http://localhost:8081 \
-                -r zap-report.html \
-                -I
-
-            '''
-        }
+      steps {
+        sh '''
+          docker run --rm --network host \
+            --user root \
+            -v "$PWD:/zap/wrk" \
+            zaproxy/zap-stable zap-baseline.py \
+            -t http://localhost:8081 \
+            -r zap-report.html \
+            -I
+        '''
+      }
     }
-
   }
 
   post {
