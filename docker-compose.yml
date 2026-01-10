@@ -1,12 +1,7 @@
 services:
   web:
-    container_name: web_html
     image: 23127177_web:latest
     build: .
+    container_name: web_html
     ports:
-      - "8081:80"
-
-    security_opt:
-      - no-new-privileges:true
-
-    read_only: true
+      - "127.0.0.1:8081:80"

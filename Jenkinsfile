@@ -33,16 +33,16 @@ pipeline {
     stage('DAST - OWASP ZAP') {
       steps {
         sh '''
-          docker run --rm --network host \
-            --user root \
-            -v "$PWD:/zap/wrk" \
-            zaproxy/zap-stable zap-baseline.py \
-            -t https://iostream.store/ \
-            -r zap-report.html \
-            -I
+        docker run --rm \
+          -v "$PWD:/zap/wrk" \
+          zaproxy/zap-stable zap-baseline.py \
+          -t http://116.118.60.232:8081 \
+          -r zap-report.html \
+          -m 1
         '''
       }
     }
+
   }
 
   post {
