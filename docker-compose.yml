@@ -1,6 +1,12 @@
-version: "3"
+version: "3.8"
+
 services:
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: 23127177_web:latest
+    container_name: web_html
     ports:
-      - "3000:3000"
+      - "8081:80"
+    restart: unless-stopped
