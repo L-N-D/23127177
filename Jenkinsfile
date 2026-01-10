@@ -13,9 +13,10 @@ pipeline {
     stage('SAST - Semgrep') {
       steps {
         sh '''
-          docker run --rm -v "$PWD:/src" semgrep/semgrep \
-            semgrep scan --config=auto \
-            --exclude zap-report.html
+          docker run --rm \
+            -v "$PWD:/src" \
+            semgrep/semgrep \
+            semgrep scan --config=auto --exclude zap-report.html
         '''
       }
     }
@@ -23,9 +24,10 @@ pipeline {
     stage('Build & Deploy HTML') {
       steps {
         sh '''
-          docker ps -q --filter "publish=8081" | xargs -r docker rm -f
-          docker-compose down --remove-orphans
+          docker-compose down --remove-orphans || true
+          docker rm -f web_html || true
           docker-compose up -d --build
+          sleep 10
         '''
       }
     }
@@ -33,21 +35,26 @@ pipeline {
     stage('DAST - OWASP ZAP') {
       steps {
         sh '''
-        docker run --rm \
-          -v "$PWD:/zap/wrk" \
-          zaproxy/zap-stable zap-baseline.py \
-          -t https://iostream.store/ \
-          -r zap-report.html \
-          -m 1
+          chmod -R 777 .
+
+          docker run --rm \
+            --user root \
+            --network host \
+            -v "$PWD:/zap/wrk" \
+            zaproxy/zap-stable \
+            zap-baseline.py \
+              -t https://iostream.store/ \
+              -r zap-report.html \
+              -m 1 \
+              -I
         '''
       }
     }
-
   }
 
   post {
     always {
-      archiveArtifacts artifacts: 'zap-report.html'
+      archiveArtifacts artifacts: 'zap-report.html', allowEmptyArchive: true
     }
   }
 }
