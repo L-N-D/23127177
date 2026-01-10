@@ -16,8 +16,8 @@ pipeline {
     stage('SAST - Semgrep') {
       steps {
         sh '''
-        pip3 install --user semgrep || true
-        ~/.local/bin/semgrep scan --config=auto || true
+          pip3 install --user semgrep || true
+          ~/.local/bin/semgrep scan --config=auto || true
         '''
       }
     }
@@ -25,8 +25,8 @@ pipeline {
     stage('Build & Deploy') {
       steps {
         sh '''
-        docker-compose down || true
-        docker-compose up -d --build
+          docker-compose down || true
+          docker-compose up -d --build
         '''
       }
     }
@@ -34,8 +34,8 @@ pipeline {
     stage('Wait for App') {
       steps {
         sh '''
-        echo "Waiting for app to be ready..."
-        sleep 15
+          echo "Waiting for app to be ready..."
+          sleep 15
         '''
       }
     }
@@ -43,5 +43,10 @@ pipeline {
     stage('DAST - OWASP ZAP') {
       steps {
         sh '''
-        docker run --rm owasp/zap2docker-stable \
-        zap-baseline.py -
+          docker run --rm owasp/zap2docker-stable \
+          zap-baseline.py -t $APP_URL || true
+        '''
+      }
+    }
+  }
+}
