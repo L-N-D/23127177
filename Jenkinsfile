@@ -5,18 +5,14 @@ pipeline {
 
     stage('Checkout') {
       steps {
-        git branch: 'main',
-            url: 'https://github.com/L-N-D/23127177.git'
+        git branch: 'main', url: 'https://github.com/L-N-D/23127177.git'
       }
     }
 
     stage('SAST - Semgrep') {
       steps {
         sh '''
-          docker run --rm \
-            -v "$PWD:/src" \
-            semgrep/semgrep \
-            semgrep scan --config=auto --exclude zap-report.html
+          docker run --rm -v "$PWD:/src" semgrep/semgrep semgrep scan --config=auto --exclude zap-report.html
         '''
       }
     }
@@ -35,18 +31,11 @@ pipeline {
     stage('DAST - OWASP ZAP') {
       steps {
         sh '''
-          chmod -R 777 .
-
-          docker run --rm \
-            --user root \
+          docker run --rm --user root \
             --network host \
-            -v "$PWD:/zap/wrk" \
+            -v "$PWD:/zap/wrk:rw" \
             zaproxy/zap-stable \
-            zap-baseline.py \
-              -t https://iostream.store/ \
-              -r zap-report.html \
-              -m 1 \
-              -I
+            zap-baseline.py -t https://iostream.store/ -r zap-report.html -m 1 -I
         '''
       }
     }
