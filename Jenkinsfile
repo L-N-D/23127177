@@ -36,7 +36,7 @@ pipeline {
         docker run --rm \
           -v "$PWD:/zap/wrk" \
           zaproxy/zap-stable zap-baseline.py \
-          -t http://116.118.60.232:8081 \
+          -t https://iostream.store/ \
           -r zap-report.html \
           -m 1
         '''
