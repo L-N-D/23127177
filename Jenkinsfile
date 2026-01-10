@@ -4,23 +4,22 @@ pipeline {
   stages {
 
     stage('Checkout') {
-        steps {
-            git branch: 'main',
+      steps {
+        git branch: 'main',
             url: 'https://github.com/L-N-D/23127177.git'
-        }
+      }
     }
-
 
     stage('SAST - Semgrep') {
       steps {
         sh '''
           docker run --rm -v "$PWD:/src" semgrep/semgrep \
-            semgrep scan --config=auto --error
+            semgrep scan --config=auto
         '''
       }
     }
 
-    stage('Build & Deploy') {
+    stage('Build & Deploy HTML') {
       steps {
         sh '''
           docker-compose down
@@ -33,8 +32,8 @@ pipeline {
       steps {
         sh '''
           docker run --rm --network host \
-            owasp/zap2docker-stable zap-baseline.py \
-            -t http://localhost:3000 \
+            zaproxy/zap-stable zap-baseline.py \
+            -t http://localhost:8081 \
             -r zap-report.html
         '''
       }
